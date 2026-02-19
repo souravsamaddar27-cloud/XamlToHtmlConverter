@@ -12,6 +12,7 @@ namespace XamlToHtmlConverter.Parsing
         public static void Print(XElement element, int indent = 0)
         {
             var indentation = new string(' ', indent);
+
             Console.WriteLine($"{indentation}Element: {element.Name.LocalName}");
 
             foreach (var attr in element.Attributes())
@@ -19,7 +20,7 @@ namespace XamlToHtmlConverter.Parsing
                 if (attr.IsNamespaceDeclaration)
                     continue;
 
-                Console.WriteLine($"{indentation} Attribute: {attr.Name.LocalName}={attr.Value}");
+                Console.WriteLine($"{indentation}  Attribute: {attr.Name.LocalName} = {attr.Value}");
             }
 
             foreach (var node in element.Nodes())
@@ -28,15 +29,15 @@ namespace XamlToHtmlConverter.Parsing
                 {
                     Print(childElement, indent + 2);
                 }
-                else if(node is XText textNode)
+                else if (node is XText textNode)
                 {
                     var text = textNode.Value.Trim();
                     if (!string.IsNullOrEmpty(text))
                     {
-                        Console.WriteLine($"{indentation} TextNode: {text}");
+                        Console.WriteLine($"{indentation}  TextNode: {text}");
                     }
                 }
             }
         }
-    }   
+    }
 }

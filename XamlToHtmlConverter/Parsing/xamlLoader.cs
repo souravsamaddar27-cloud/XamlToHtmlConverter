@@ -13,10 +13,10 @@ namespace XamlToHtmlConverter.Parsing
         public XDocument Load(string path)
         {
             if (string.IsNullOrWhiteSpace(path))
-                throw new ArgumentException("path cannot be null or empty");
+                throw new ArgumentException("Path cannot be null or empty.");
 
             if (!File.Exists(path))
-                throw new FileNotFoundException("XAML file not found at ", path);
+                throw new FileNotFoundException("XAML file not found.", path);
 
             return XDocument.Load(path);
         }

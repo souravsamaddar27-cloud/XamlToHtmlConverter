@@ -13,11 +13,18 @@ namespace XamlToHtmlConverter.IR
         /// </summary>
         public string Type { get; }
 
+       
+
         /// <summary>
         /// Regular properties defined as attributes in XAML.
         /// Example: Width="100"
         /// </summary>
         public Dictionary<string, string> Properties { get; }
+
+        /// <summary>
+        /// Direct inner text content of the element (if any).
+        /// </summary>
+        public string? InnerText { get; set; }
 
         /// <summary>
         /// Attached properties (e.g., Grid.Row="1").
@@ -28,7 +35,7 @@ namespace XamlToHtmlConverter.IR
         /// <summary>
         /// Child elements in the logical tree.
         /// </summary>
-        public List<IrElement> Children { get; }
+        public List<IrElement> Children { get; set; }
 
         public IrElement(string type)
         {
