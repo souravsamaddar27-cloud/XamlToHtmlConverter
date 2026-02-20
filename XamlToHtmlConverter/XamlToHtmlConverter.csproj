@@ -7,4 +7,18 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="sample.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Include="sample.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="sample2.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+  </ItemGroup>
+
 </Project>

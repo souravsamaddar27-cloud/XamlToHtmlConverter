@@ -2,25 +2,56 @@
 using System.IO;
 using XamlToHtmlConverter.Parsing;
 using XamlToHtmlConverter.IR;
+using XamlToHtmlConverter.Rendering;
 
+/// <summary>
+/// Entry point of the application.
+/// Coordinates XAML loading, IR conversion, XML export,
+/// HTML rendering, and console inspection.
+/// </summary>
 class Program
 {
+    /// <summary>
+    /// Executes the end-to-end XAML to HTML conversion pipeline.
+    /// Handles loading, transformation, exporting, and output generation.
+    /// </summary>
     static void Main()
     {
-        var path = Path.Combine(Directory.GetCurrentDirectory(), "sample.xaml");
+        var path = Path.Combine(Directory.GetCurrentDirectory(), "sample2.xaml");
 
         var loader = new XamlLoader();
         var document = loader.Load(path);
         if (document.Root == null)
             throw new InvalidOperationException("XML document has no root element.");
 
-        //Switch Strategy here
-       // IXmlToIrConverter converter = new XmlToIrConverterRecursive();
+        // Save original XML DOM
+        var xmlOutputPath = Path.Combine(AppContext.BaseDirectory, "XamlDom.xml");
+        document.Save(xmlOutputPath);
+
+        // Select conversion strategy
+        // IXmlToIrConverter converter = new XmlToIrConverterRecursive();
         IXmlToIrConverter converter = new XmlToIrConverterLinqStyle();
         var ir = converter.Convert(document.Root);
+
+        // Save IR representation
+        var irDoc = IrXmlExporter.Export(ir);
+        var irOutputPath = Path.Combine(AppContext.BaseDirectory, "Ir.xml");
+        irDoc.Save(irOutputPath);
+
+        var renderer = new HtmlRenderer();
+        var html = renderer.RenderDocument(ir);
+        var htmlOutputPath = Path.Combine(AppContext.BaseDirectory, "output2.html");
+        File.WriteAllText(htmlOutputPath, html);
+
+        // Print IR structure to console
         PrintIr(ir, 0);
         Console.ReadLine();
     }
+
+    /// <summary>
+    /// Recursively prints the IR tree structure,
+    /// including properties, attached properties, and text.
+    /// </summary>
     static void PrintIr(IrElement element, int indent)
     {
         var space = new string(' ', indent);

@@ -4,11 +4,15 @@ using System.Xml.Linq;
 namespace XamlToHtmlConverter.Parsing
 {
     /// <summary>
-    /// Utility class to inspect and print the XML DOM tree.
-    /// Used for debugging and understanding structure.
+    /// Provides helper methods for inspecting and printing XML DOM structure.
+    /// Primarily used for debugging and structure visualization.
     /// </summary>
     public static class XmlDomInspector
     {
+        /// <summary>
+        /// Recursively prints an XML element, its attributes, and child nodes
+        /// with indentation representing hierarchy depth.
+        /// </summary>
         public static void Print(XElement element, int indent = 0)
         {
             var indentation = new string(' ', indent);

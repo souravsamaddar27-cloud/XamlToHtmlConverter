@@ -1,5 +1,5 @@
 <Grid>
-    <Button Width="100" Height="40" Grid.Row="1">
+    <Button Width="100" Height="40" Grid.Row="1" Grid.Column="2">
         Click Me
     </Button>
 </Grid>
