@@ -70,11 +70,46 @@ namespace XamlToHtmlConverter.Parsing
         /// Recursively converts child XML elements
         /// and adds them to the IR children collection.
         /// </summary>
+
         private void ProcessChildren(XElement element, IrElement ir)
         {
-            foreach(var child in element.Elements())
+            foreach (var child in element.Elements())
             {
-                ir.Children.Add(ConvertElement(child));
+                var childName = child.Name.LocalName;
+
+                // Handle Grid.RowDefinitions
+                if (childName == "Grid.RowDefinitions")
+                {
+                    foreach (var rowDef in child.Elements())
+                    {
+                        var heightAttr = rowDef.Attribute("Height");
+                        if (heightAttr != null)
+                        {
+                            ir.GridRowDefinitions.Add(heightAttr.Value);
+                        }
+                    }
+
+                    continue; // Skip adding this as visual child
+                }
+
+                // Handle Grid.ColumnDefinitions
+                if (childName == "Grid.ColumnDefinitions")
+                {
+                    foreach (var colDef in child.Elements())
+                    {
+                        var widthAttr = colDef.Attribute("Width");
+                        if (widthAttr != null)
+                        {
+                            ir.GridColumnDefinitions.Add(widthAttr.Value);
+                        }
+                    }
+
+                    continue;
+                }
+
+                // IMPORTANT: Always process normal children
+                var childIr = ConvertElement(child);
+                ir.Children.Add(childIr);
             }
         }
 

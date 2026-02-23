@@ -1,5 +1,26 @@
 <Grid>
-    <Button Width="100" Height="40" Grid.Row="1" Grid.Column="2">
-        Click Me
-    </Button>
+    <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+
+    <Border Background="LightGray" Padding="10" Grid.Row="0">
+        <TextBlock Margin="5">
+            Header Title
+        </TextBlock>
+    </Border>
+
+    <StackPanel Grid.Row="1" Margin="10">
+        <TextBlock Margin="0,0,0,10">
+            Description text goes here.
+        </TextBlock>
+
+        <Button Width="150" Height="40" Margin="5">
+            Submit
+        </Button>
+
+        <Button Width="150" Height="40" Margin="5">
+            Cancel
+        </Button>
+    </StackPanel>
 </Grid>

@@ -17,7 +17,7 @@ class Program
     /// </summary>
     static void Main()
     {
-        var path = Path.Combine(Directory.GetCurrentDirectory(), "sample2.xaml");
+        var path = Path.Combine(Directory.GetCurrentDirectory(), "sample.xaml");
 
         var loader = new XamlLoader();
         var document = loader.Load(path);
@@ -29,8 +29,10 @@ class Program
         document.Save(xmlOutputPath);
 
         // Select conversion strategy
-        // IXmlToIrConverter converter = new XmlToIrConverterRecursive();
-        IXmlToIrConverter converter = new XmlToIrConverterLinqStyle();
+        Console.WriteLine("Recursive converter running...");
+        IXmlToIrConverter converter = new XmlToIrConverterRecursive();
+        //Console.WriteLine("LINQ converter running...");
+        //IXmlToIrConverter converter = new XmlToIrConverterLinqStyle();
         var ir = converter.Convert(document.Root);
 
         // Save IR representation
@@ -38,9 +40,9 @@ class Program
         var irOutputPath = Path.Combine(AppContext.BaseDirectory, "Ir.xml");
         irDoc.Save(irOutputPath);
 
-        var renderer = new HtmlRenderer();
+        var renderer = new HtmlRenderer(new DefaultElementTagMapper());
         var html = renderer.RenderDocument(ir);
-        var htmlOutputPath = Path.Combine(AppContext.BaseDirectory, "output2.html");
+        var htmlOutputPath = Path.Combine(AppContext.BaseDirectory, "output.html");
         File.WriteAllText(htmlOutputPath, html);
 
         // Print IR structure to console

@@ -33,15 +33,22 @@ namespace XamlToHtmlConverter.Rendering
             return sb.ToString();
 
         }
+
+        private readonly IElementTagMapper _tagMapper;
+        public HtmlRenderer(IElementTagMapper tagMapper)
+        {
+            _tagMapper = tagMapper; 
+        }
+
+
         /// <summary>
         /// Recursively renders an IR element and its children
         /// into corresponding HTML markup with indentation.
         /// </summary>
-
         private void RenderElement(IrElement element, StringBuilder sb, int indent)
         {
             var indentation = new string(' ', indent);
-            var tag = MapTag(element.Type);
+            var tag = _tagMapper.Map(element.Type);
             var style = BuildStyle(element);
             sb.Append($"{indentation}<{tag}");
 
@@ -73,7 +80,6 @@ namespace XamlToHtmlConverter.Rendering
         private string ConvertThicknessToCss(string thickness)
         {
             var parts = thickness.Split(',');
-
             if (parts.Length == 1)
                 return $"{parts[0]}px";
 
@@ -92,22 +98,45 @@ namespace XamlToHtmlConverter.Rendering
             return thickness;
         }
 
-        /// <summary>
-        /// Maps IR element types to corresponding HTML tags.
-        /// Defaults to 'div' when no specific mapping exists.
-        /// </summary>
-        private string MapTag(string type)
-          {
-                return type switch
-                {
-                    "Grid" => "div",
-                    "StackPanel" => "div",
-                    "Button" => "button",
-                    "TextBlock" => "span",
-                    "Border" => "div",
-                    _ => "div"
-                };
-          }
+       private void ApplyGridTemplate(IrElement element, StringBuilder sb)
+        {
+            if (element.Type != "Grid")
+                return;
+
+            if (element.GridRowDefinitions.Count > 0)
+            {
+                var rows = element.GridRowDefinitions.Select(ConvertGridLength).ToList();
+                sb.Append($"grid-template-rows:{string.Join(" ", rows)};");
+            }
+            if(element.GridColumnDefinitions.Count > 0)
+            {
+                var cols = element.GridColumnDefinitions.Select(ConvertGridLength).ToList();
+                sb.Append($"grid-template-columns:{string.Join(" ", cols)};");
+            }
+        }
+
+        private string ConvertGridLength(string value)
+        {
+            value = value.Trim();
+
+            if (value.Equals("Auto", StringComparison.OrdinalIgnoreCase))
+                return "auto";
+
+            if (value.EndsWith("*"))
+            {
+                var numberPart = value.Replace("*", "");
+                if(string.IsNullOrWhiteSpace(numberPart)) 
+                    return "1fr";
+
+                if (int.TryParse(numberPart, out var multiplier))
+                    return $"{multiplier}fr";
+            }
+            if (int.TryParse(value, out var pixels))
+                return $"{pixels}px";
+
+            return value;
+        }
+       
 
         /// <summary>
         /// Builds inline CSS styles based on element type,
@@ -120,6 +149,7 @@ namespace XamlToHtmlConverter.Rendering
             //Layout mapping
             if (element.Type == "Grid")
                 sb.Append("display:grid;");
+                ApplyGridTemplate(element, sb);
 
             if (element.Type == "StackPanel")
                 sb.Append("display:flex;flex-direction:column;");

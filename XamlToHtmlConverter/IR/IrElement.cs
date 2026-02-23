@@ -37,6 +37,9 @@ namespace XamlToHtmlConverter.IR
         /// </summary>
         public List<IrElement> Children { get; set; }
 
+        public List<string> GridRowDefinitions { get; } = new();
+        public List<string> GridColumnDefinitions { get; } = new();
+
         public IrElement(string type)
         {
             Type = type;
