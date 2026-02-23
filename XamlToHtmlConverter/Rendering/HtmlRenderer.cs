@@ -35,9 +35,11 @@ namespace XamlToHtmlConverter.Rendering
         }
 
         private readonly IElementTagMapper _tagMapper;
-        public HtmlRenderer(IElementTagMapper tagMapper)
+        private readonly IEnumerable<ILayoutRenderer> _layoutRenderers;
+        public HtmlRenderer(IElementTagMapper tagMapper, IEnumerable<ILayoutRenderer> layoutRenderers)
         {
             _tagMapper = tagMapper; 
+            _layoutRenderers = layoutRenderers;
         }
 
 
@@ -152,7 +154,16 @@ namespace XamlToHtmlConverter.Rendering
                 ApplyGridTemplate(element, sb);
 
             if (element.Type == "StackPanel")
-                sb.Append("display:flex;flex-direction:column;");
+            {
+                foreach (var layout in _layoutRenderers)
+                {
+                    if (layout.CanHandle(element))
+                    {
+                        layout.ApplyLayout(element, sb);
+                        break;
+                    }
+                }
+            }
 
             //Width / Height
             if (element.Properties.TryGetValue("Width", out var width))
@@ -174,7 +185,25 @@ namespace XamlToHtmlConverter.Rendering
             if(element.AttachedProperties.TryGetValue("Grid.Column", out var col))
             {
                 if (int.TryParse(col, out var c))
-                    sb.Append($"grid-column:{c + 1};");
+                {
+                    if(element.AttachedProperties.TryGetValue("Grid.ColumnSpan",out var span) && int.TryParse(span, out var s))
+                    {
+                        sb.Append($"grid-column:{c + 1} / span {s};");
+                    }
+                    else
+                    {
+                        sb.Append($"grid-column:{c + 1};");
+                    }
+                }
+            }
+            if(element.AttachedProperties.TryGetValue("Grid.RowSpan",out var rowSpan))
+            {
+                if(int.TryParse(rowSpan, out var rs))
+                {
+                    if(element.AttachedProperties.TryGetValue("Grid.Row", out var baseRow) && int.TryParse(baseRow, out var r)){
+                        sb.Append($"grid-row:{r + 1} / span {rs};");
+                    }
+                }
             }
 
             ///CSS Margins

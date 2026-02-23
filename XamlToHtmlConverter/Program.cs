@@ -40,7 +40,13 @@ class Program
         var irOutputPath = Path.Combine(AppContext.BaseDirectory, "Ir.xml");
         irDoc.Save(irOutputPath);
 
-        var renderer = new HtmlRenderer(new DefaultElementTagMapper());
+        var renderer = new HtmlRenderer(
+            new DefaultElementTagMapper(), 
+            new ILayoutRenderer[]
+            {
+                new GridLayoutRenderer(),
+                new StackPanelLayoutRenderer()
+            });
         var html = renderer.RenderDocument(ir);
         var htmlOutputPath = Path.Combine(AppContext.BaseDirectory, "output.html");
         File.WriteAllText(htmlOutputPath, html);
