@@ -1,30 +1,10 @@
 <Grid>
     <Grid.RowDefinitions>
-        <RowDefinition Height="Auto"/>
         <RowDefinition Height="*"/>
     </Grid.RowDefinitions>
 
-    <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="2*"/>
-        <ColumnDefinition Width="*"/>
-    </Grid.ColumnDefinitions>
-
-    <Border Background="LightGray" Padding="10"
-            Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
-        <TextBlock Margin="5">
-            Header Title
-        </TextBlock>
-    </Border>
-
-    <StackPanel Grid.Row="1" Grid.Column="0" Margin="10">
-        <Button Width="150" Height="40" Margin="5">
-            Left Panel Button
-        </Button>
-    </StackPanel>
-
-    <StackPanel Grid.Row="1" Grid.Column="1" Margin="10">
-        <Button Width="150" Height="40" Margin="5">
-            Right Panel Button
-        </Button>
-    </StackPanel>
+    <Button HorizontalAlignment="Center"
+            VerticalAlignment="Top">
+        Test
+    </Button>
 </Grid>

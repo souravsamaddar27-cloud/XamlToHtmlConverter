@@ -46,7 +46,8 @@ class Program
             {
                 new GridLayoutRenderer(),
                 new StackPanelLayoutRenderer()
-            });
+            },
+            new DefaultStyleBuilder());
         var html = renderer.RenderDocument(ir);
         var htmlOutputPath = Path.Combine(AppContext.BaseDirectory, "output.html");
         File.WriteAllText(htmlOutputPath, html);

@@ -26,7 +26,7 @@ namespace XamlToHtmlConverter.Rendering
             sb.AppendLine("</head>");
             sb.AppendLine("<body>");
 
-            RenderElement(root, sb, 0);
+            RenderElement(root, sb, 0,null);
 
             sb.AppendLine("</body>");
             sb.AppendLine("</html>");
@@ -36,10 +36,12 @@ namespace XamlToHtmlConverter.Rendering
 
         private readonly IElementTagMapper _tagMapper;
         private readonly IEnumerable<ILayoutRenderer> _layoutRenderers;
-        public HtmlRenderer(IElementTagMapper tagMapper, IEnumerable<ILayoutRenderer> layoutRenderers)
+        private readonly IStyleBuilder _styleBuilder;
+        public HtmlRenderer(IElementTagMapper tagMapper, IEnumerable<ILayoutRenderer> layoutRenderers, IStyleBuilder styleBuilder)
         {
             _tagMapper = tagMapper; 
             _layoutRenderers = layoutRenderers;
+             _styleBuilder= styleBuilder;
         }
 
 
@@ -47,15 +49,17 @@ namespace XamlToHtmlConverter.Rendering
         /// Recursively renders an IR element and its children
         /// into corresponding HTML markup with indentation.
         /// </summary>
-        private void RenderElement(IrElement element, StringBuilder sb, int indent)
+        private void RenderElement( IrElement element,StringBuilder sb, int indent,string? parentLayoutType)
         {
             var indentation = new string(' ', indent);
             var tag = _tagMapper.Map(element.Type);
-            var style = BuildStyle(element);
+            var style = BuildStyle(element, parentLayoutType);
+
             sb.Append($"{indentation}<{tag}");
 
             if (!string.IsNullOrWhiteSpace(style))
                 sb.Append($" style=\"{style}\"");
+
             sb.Append(">");
 
             if (!string.IsNullOrWhiteSpace(element.InnerText))
@@ -66,13 +70,14 @@ namespace XamlToHtmlConverter.Rendering
 
             foreach (var child in element.Children)
             {
-                RenderElement(child, sb, indent + 2);
+                // THIS MUST USE element.Type
+                RenderElement(child, sb, indent + 2, element.Type);
             }
+
             if (element.Children.Count > 0)
                 sb.Append(indentation);
 
-            sb.Append($"</{tag}>");
-
+            sb.AppendLine($"</{tag}>");
         }
 
         /// <summary>
@@ -138,85 +143,32 @@ namespace XamlToHtmlConverter.Rendering
 
             return value;
         }
-       
+
 
         /// <summary>
         /// Builds inline CSS styles based on element type,
         /// layout behavior, standard properties, and attached properties.
         /// </summary>
-        private string BuildStyle(IrElement element)
+        private string BuildStyle(IrElement element, string? parentLayoutType)
         {
             var sb = new StringBuilder();
 
-            //Layout mapping
-            if (element.Type == "Grid")
-                sb.Append("display:grid;");
-                ApplyGridTemplate(element, sb);
-
-            if (element.Type == "StackPanel")
+            // 1️⃣ Apply layout container behavior (Grid, StackPanel, etc.)
+            foreach (var layout in _layoutRenderers)
             {
-                foreach (var layout in _layoutRenderers)
+                if (layout.CanHandle(element))
                 {
-                    if (layout.CanHandle(element))
-                    {
-                        layout.ApplyLayout(element, sb);
-                        break;
-                    }
+                    layout.ApplyLayout(element, sb);
+                    break; // Only one layout renderer should apply
                 }
             }
 
-            //Width / Height
-            if (element.Properties.TryGetValue("Width", out var width))
-                sb.Append($"width:{width}px;");
-
-            if (element.Properties.TryGetValue("Height", out var height))
-                sb.Append($"height:{height}px;");
-
-            //Background
-            if (element.Properties.TryGetValue("Background", out var bg))
-                sb.Append($"background-color:{bg};");
-
-            //Grid
-            if(element.AttachedProperties.TryGetValue("Grid.Row",out var row))
-            {
-                if (int.TryParse(row, out var r))
-                    sb.Append($"grid-row:{r + 1};");
-            }
-            if(element.AttachedProperties.TryGetValue("Grid.Column", out var col))
-            {
-                if (int.TryParse(col, out var c))
-                {
-                    if(element.AttachedProperties.TryGetValue("Grid.ColumnSpan",out var span) && int.TryParse(span, out var s))
-                    {
-                        sb.Append($"grid-column:{c + 1} / span {s};");
-                    }
-                    else
-                    {
-                        sb.Append($"grid-column:{c + 1};");
-                    }
-                }
-            }
-            if(element.AttachedProperties.TryGetValue("Grid.RowSpan",out var rowSpan))
-            {
-                if(int.TryParse(rowSpan, out var rs))
-                {
-                    if(element.AttachedProperties.TryGetValue("Grid.Row", out var baseRow) && int.TryParse(baseRow, out var r)){
-                        sb.Append($"grid-row:{r + 1} / span {rs};");
-                    }
-                }
-            }
-
-            ///CSS Margins
-            if(element.Properties.TryGetValue("Margin", out var margin))
-            {
-                sb.Append($"margin:{ConvertThicknessToCss(margin)};");
-            }
-            if(element.Properties.TryGetValue("Padding", out var padding))
-            {
-                sb.Append($"padding:{ConvertThicknessToCss(padding)};");
-            }
+            // 2️⃣ Apply property-based styling (width, margin, alignment, grid positioning, etc.)
+            var context = new LayoutContext(parentLayoutType);
+            sb.Append(_styleBuilder.Build(element, context));
 
             return sb.ToString();
         }
+
     }
 }

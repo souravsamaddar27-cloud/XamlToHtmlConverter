@@ -13,7 +13,7 @@ namespace XamlToHtmlConverter.Rendering
 
         public void ApplyLayout(IrElement element, StringBuilder sb)
         {
-            sb.Append("display:grid");
+            sb.Append("display:grid;");
             if (element.GridRowDefinitions.Count > 0)
             {
                 var rows = element.GridRowDefinitions
@@ -25,7 +25,7 @@ namespace XamlToHtmlConverter.Rendering
             if(element.GridColumnDefinitions.Count > 0)
             {
                 var cols = element.GridColumnDefinitions.Select(ConvertGridLength);
-                sb.Append($"grid-template-columns:{string.Join(", ", cols)};");
+                sb.Append($"grid-template-columns:{string.Join(" ", cols)};");
             }
 
         }
