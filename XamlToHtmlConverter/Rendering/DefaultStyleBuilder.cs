@@ -5,8 +5,17 @@ using XamlToHtmlConverter.IR;
 
 namespace XamlToHtmlConverter.Rendering
 {
+    /// <summary>
+    /// Default implementation of IStyleBuilder.
+    /// Generates inline CSS styles based on standard properties,
+    /// attached properties, and layout context.
+    /// </summary>
     public class DefaultStyleBuilder : IStyleBuilder
     {
+        /// <summary>
+        /// Builds the complete CSS style string for the given IR element.
+        /// Delegates processing to specialized style handlers.
+        /// </summary>
         public string Build(IrElement element, LayoutContext context)
         {
           
@@ -16,6 +25,10 @@ namespace XamlToHtmlConverter.Rendering
             ApplyAlignment(element, context, sb);
             return sb.ToString();
         }
+        /// <summary>
+        /// Applies width, height, background, margin, and padding styles
+        /// based on regular element properties.
+        /// </summary>
         private void ApplyStandardProperties(IrElement element, StringBuilder sb)
         {
             if (element.Properties.TryGetValue("Width", out var width) && int.TryParse(width, out var w))
@@ -33,6 +46,10 @@ namespace XamlToHtmlConverter.Rendering
             if (element.Properties.TryGetValue("Padding", out var padding))
                 sb.Append($"padding:{ConvertThickness(padding)};");
         }
+        /// <summary>
+        /// Applies grid-related positioning styles including
+        /// row, column, and span handling.
+        /// </summary>
         private void ApplyAttachedProperties(IrElement element, StringBuilder sb)
         {
             // ROW
@@ -64,6 +81,10 @@ namespace XamlToHtmlConverter.Rendering
             }
         }
 
+        /// <summary>
+        /// Applies alignment styles depending on the parent layout type.
+        /// Adjusts cross-axis or self-alignment accordingly.
+        /// </summary>
         private void ApplyAlignment(IrElement element, LayoutContext context, StringBuilder sb)
         {
             Console.WriteLine($"Alignment check: ParentLayoutType={context.ParentLayoutType}");
@@ -86,6 +107,9 @@ namespace XamlToHtmlConverter.Rendering
                 }
             }
         }
+        /// <summary>
+        /// Converts alignment values from XAML format to CSS equivalents.
+        /// </summary>
         private string ConvertAlignment(string value)
         {
             return value switch
@@ -99,6 +123,9 @@ namespace XamlToHtmlConverter.Rendering
                 _ => "start"
             };
         }
+        /// <summary>
+        /// Converts XAML Thickness values into CSS spacing format.
+        /// </summary>
         private string ConvertThickness(string thickness)
         {
             var parts = thickness.Split(',');

@@ -34,9 +34,22 @@ namespace XamlToHtmlConverter.Rendering
 
         }
 
+        /// <summary>
+        /// Maps IR element types to HTML tags.
+        /// </summary>
         private readonly IElementTagMapper _tagMapper;
+        /// <summary>
+        /// Collection of layout renderers responsible for container layout behavior.
+        /// </summary>
         private readonly IEnumerable<ILayoutRenderer> _layoutRenderers;
+        /// <summary>
+        /// Builds inline CSS styles for elements.
+        /// </summary>
         private readonly IStyleBuilder _styleBuilder;
+
+        /// <summary>
+        /// Initializes renderer with required mapping, layout, and styling services.
+        /// </summary>
         public HtmlRenderer(IElementTagMapper tagMapper, IEnumerable<ILayoutRenderer> layoutRenderers, IStyleBuilder styleBuilder)
         {
             _tagMapper = tagMapper; 
@@ -105,7 +118,10 @@ namespace XamlToHtmlConverter.Rendering
             return thickness;
         }
 
-       private void ApplyGridTemplate(IrElement element, StringBuilder sb)
+        /// <summary>
+        /// Applies grid template row and column definitions when element is a Grid.
+        /// </summary>
+        private void ApplyGridTemplate(IrElement element, StringBuilder sb)
         {
             if (element.Type != "Grid")
                 return;
@@ -122,6 +138,9 @@ namespace XamlToHtmlConverter.Rendering
             }
         }
 
+        /// <summary>
+        /// Converts XAML GridLength values into CSS units (auto, fr, px).
+        /// </summary>
         private string ConvertGridLength(string value)
         {
             value = value.Trim();

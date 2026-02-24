@@ -6,10 +6,21 @@ using XamlToHtmlConverter.IR;
 
 namespace XamlToHtmlConverter.Rendering
 {
+    /// <summary>
+    /// Layout renderer responsible for handling StackPanel elements.
+    /// Converts StackPanel behavior into corresponding flexbox layout styles.
+    /// </summary>
     public class StackPanelLayoutRenderer : ILayoutRenderer
     {
-        public  bool CanHandle(IrElement element) => element.Type == "StackPanel";
+        /// <summary>
+        /// Determines whether this renderer can handle the specified IR element.
+        /// </summary>
+        public bool CanHandle(IrElement element) => element.Type == "StackPanel";
 
+        /// <summary>
+        /// Applies flexbox layout styles based on StackPanel orientation.
+        /// Defaults to vertical (column) direction.
+        /// </summary>
         public void ApplyLayout(IrElement element, StringBuilder sb)
         {
             sb.Append("display:flex;");

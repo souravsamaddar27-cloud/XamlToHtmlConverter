@@ -6,11 +6,22 @@ using XamlToHtmlConverter.IR;
 
 namespace XamlToHtmlConverter.Rendering
 {
+    /// <summary>
+    /// Layout renderer responsible for handling Grid elements.
+    /// Applies CSS Grid layout rules and template definitions.
+    /// </summary>
     public class GridLayoutRenderer : ILayoutRenderer
     {
+        /// <summary>
+        /// Determines whether this renderer can process the given element.
+        /// </summary>
         public bool CanHandle(IrElement element)
             => element.Type == "Grid";
 
+        /// <summary>
+        /// Applies CSS grid layout styles including
+        /// row and column template definitions.
+        /// </summary>
         public void ApplyLayout(IrElement element, StringBuilder sb)
         {
             sb.Append("display:grid;");
@@ -29,6 +40,10 @@ namespace XamlToHtmlConverter.Rendering
             }
 
         }
+        /// <summary>
+        /// Converts XAML GridLength values into
+        /// corresponding CSS units (auto, fr, px).
+        /// </summary>
         private string ConvertGridLength(string value)
         {
             value = value.Trim();
