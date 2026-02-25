@@ -43,8 +43,8 @@ namespace XamlToHtmlConverter.IR
         public IrElement(string type)
         {
             Type = type;
-            Properties = new Dictionary<string, string>();
-            AttachedProperties = new Dictionary<string, string>();
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            AttachedProperties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             Children = new List<IrElement>();
         }
     }

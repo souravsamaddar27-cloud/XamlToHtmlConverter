@@ -88,17 +88,19 @@ namespace XamlToHtmlConverter.Rendering
         private void ApplyAlignment(IrElement element, LayoutContext context, StringBuilder sb)
         {
             Console.WriteLine($"Alignment check: ParentLayoutType={context.ParentLayoutType}");
-            if (context.ParentLayoutType == "Grid")
+            if (string.Equals(context.ParentLayoutType, "Grid", StringComparison.OrdinalIgnoreCase))
             {
-                if(element.Properties.TryGetValue("HorizontalAlignment", out var hAlign))
+                if (element.Properties.TryGetValue("HorizontalAlignment", out var hAlign))
                 {
                     sb.Append($"justify-self:{ConvertAlignment(hAlign)};");
                 }
-                if(element.Properties.TryGetValue("VerticalAlignment",out var vAlign))
+
+                if (element.Properties.TryGetValue("VerticalAlignment", out var vAlign))
                 {
                     sb.Append($"align-self:{ConvertAlignment(vAlign)};");
                 }
-            }else if(context.ParentLayoutType == "StackPanel")
+            }
+            else if (string.Equals(context.ParentLayoutType, "StackPanel", StringComparison.OrdinalIgnoreCase))
             {
                 // In vertical stack (default), horizontal alignment affects cross-axis
                 if(element.Properties.TryGetValue("HorizontalAlignment",out var hAlign))

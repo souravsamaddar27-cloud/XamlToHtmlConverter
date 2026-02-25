@@ -178,7 +178,7 @@ namespace XamlToHtmlConverter.Rendering
                 if (layout.CanHandle(element))
                 {
                     layout.ApplyLayout(element, sb);
-                    break; // Only one layout renderer should apply
+                    break;
                 }
             }
 
