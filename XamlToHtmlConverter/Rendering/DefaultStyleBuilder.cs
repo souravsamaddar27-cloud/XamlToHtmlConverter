@@ -32,7 +32,7 @@ namespace XamlToHtmlConverter.Rendering
         private void ApplyStandardProperties(IrElement element, StringBuilder sb)
         {
             if (element.Properties.TryGetValue("Width", out var width) && int.TryParse(width, out var w))
-                sb.Append($"Width:{w}px;");
+                sb.Append($"width:{w}px;");
 
             if (element.Properties.TryGetValue("Height", out var height) && int.TryParse(height, out var h))
                 sb.Append($"height:{h}px;");
@@ -146,6 +146,54 @@ namespace XamlToHtmlConverter.Rendering
                 return $"{top}px {right}px {bottom}px {left}px";
             }
             return thickness;
+        }
+        public Dictionary<string, string> ExtractBindingAttributes(IrElement element)
+        {
+            var result = new Dictionary<string, string>();
+
+            foreach (var prop in element.Properties)
+            {
+                var value = prop.Value?.Trim();
+                if (string.IsNullOrWhiteSpace(value))
+                    continue;
+
+                if (value.StartsWith("{Binding") && value.EndsWith("}"))
+                {
+                    var inner = value
+                        .Substring(8, value.Length - 9) // remove "{Binding" and "}"
+                        .Trim();
+
+                    string? path = null;
+
+                    // Case 1: Path=Name
+                    if (inner.Contains("Path=", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var parts = inner.Split(',');
+                        foreach (var part in parts)
+                        {
+                            var trimmed = part.Trim();
+                            if (trimmed.StartsWith("Path=", StringComparison.OrdinalIgnoreCase))
+                            {
+                                path = trimmed.Substring(5).Trim();
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // Case 2: First token is the path
+                        var firstPart = inner.Split(',')[0].Trim();
+                        path = firstPart;
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(path))
+                    {
+                        result[$"data-binding-{prop.Key.ToLower()}"] = path;
+                    }
+                }
+            }
+
+            return result;
         }
     }
 }

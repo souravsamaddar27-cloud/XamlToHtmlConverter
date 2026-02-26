@@ -70,8 +70,18 @@ namespace XamlToHtmlConverter.Rendering
 
             sb.Append($"{indentation}<{tag}");
 
+            // 1️⃣ Apply style
             if (!string.IsNullOrWhiteSpace(style))
+            {
                 sb.Append($" style=\"{style}\"");
+            }
+
+            // 2️⃣ Apply binding attributes
+            var bindingAttributes = _styleBuilder.ExtractBindingAttributes(element);
+            foreach (var attr in bindingAttributes)
+            {
+                sb.Append($" {attr.Key}=\"{attr.Value}\"");
+            }
 
             sb.Append(">");
 

@@ -16,5 +16,6 @@ namespace XamlToHtmlConverter.Rendering
         /// considering its parent layout context.
         /// </summary>
         string Build(IrElement element, LayoutContext context);
+        Dictionary<string, string> ExtractBindingAttributes(IrElement element);
     }
 }
