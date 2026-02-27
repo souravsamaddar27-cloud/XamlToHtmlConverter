@@ -17,21 +17,23 @@ namespace XamlToHtmlConverter.Rendering
         /// </summary>
         public string RenderDocument(IrElement root)
         {
+            var bodyBuilder = new StringBuilder();
+            RenderElement(root, bodyBuilder, 0, null, null);
+
             var sb = new StringBuilder();
             sb.AppendLine("<!DOCTYPE html>");
             sb.AppendLine("<html>");
             sb.AppendLine("<head>");
             sb.AppendLine("<meta charset=\"UTF-8\" />");
             sb.AppendLine("<title>XAML to HTML Output</title>");
+            sb.AppendLine(_styleRegistry.GenerateStyleBlock());
             sb.AppendLine("</head>");
             sb.AppendLine("<body>");
-
-            RenderElement(root, sb, 0,null);
-
+            sb.Append(bodyBuilder.ToString());
             sb.AppendLine("</body>");
             sb.AppendLine("</html>");
-            return sb.ToString();
 
+            return sb.ToString();
         }
 
         /// <summary>
@@ -57,48 +59,132 @@ namespace XamlToHtmlConverter.Rendering
              _styleBuilder= styleBuilder;
         }
 
+        private readonly StyleRegistry _styleRegistry = new();
 
         /// <summary>
         /// Recursively renders an IR element and its children
         /// into corresponding HTML markup with indentation.
         /// </summary>
-        private void RenderElement( IrElement element,StringBuilder sb, int indent,string? parentLayoutType)
+        private void RenderElement(IrElement element, StringBuilder sb, int indent, string? parentLayoutType,string? parentOrientation)
         {
             var indentation = new string(' ', indent);
             var tag = _tagMapper.Map(element.Type);
-            var style = BuildStyle(element, parentLayoutType);
+            var style = BuildStyle(element, parentLayoutType, parentOrientation);
 
             sb.Append($"{indentation}<{tag}");
-
-            // 1️⃣ Apply style
-            if (!string.IsNullOrWhiteSpace(style))
+            if (element.Type == "ListBox")
             {
-                sb.Append($" style=\"{style}\"");
+                sb.Append(" multiple");
             }
-
-            // 2️⃣ Apply binding attributes
+            // ---- Binding metadata ----
             var bindingAttributes = _styleBuilder.ExtractBindingAttributes(element);
+
             foreach (var attr in bindingAttributes)
             {
                 sb.Append($" {attr.Key}=\"{attr.Value}\"");
             }
+            // ---- TextBox special handling ----
+            if (element.Type == "TextBox")
+            {
+                sb.Append(" type=\"text\"");
+
+                if (element.Properties.TryGetValue("Text", out var text))
+                {
+                    var trimmed = text.Trim();
+
+                    bool isBinding =
+                        trimmed.StartsWith("{Binding") &&
+                        trimmed.EndsWith("}");
+
+                    if (!isBinding)
+                    {
+                        sb.Append($" value=\"{text}\"");
+                    }
+                }
+            }
+            // CheckBox handling
+            else if (element.Type == "CheckBox")
+            {
+                sb.Append(" type=\"checkbox\"");
+
+                if (element.Properties.TryGetValue("IsChecked", out var isChecked) &&
+                    string.Equals(isChecked, "True", StringComparison.OrdinalIgnoreCase))
+                {
+                    sb.Append(" checked");
+                }
+            }
+            // RadioButton handling
+            else if (element.Type == "RadioButton")
+            {
+                sb.Append(" type=\"radio\"");
+
+                if (element.Properties.TryGetValue("IsChecked", out var isChecked) &&
+                    string.Equals(isChecked, "True", StringComparison.OrdinalIgnoreCase))
+                {
+                    sb.Append(" checked");
+                }
+            }
+
+            // Apply CSS class (deduplicated style)
+            if (!string.IsNullOrWhiteSpace(style))
+            {
+                var className = _styleRegistry.Register(style);
+                sb.Append($" class=\"{className}\"");
+            }
+
+            // Self-closing elements (input, img)
+            if (tag == "input" || tag == "img")
+            {
+                if (element.Type == "Image" &&
+                    element.Properties.TryGetValue("Source", out var src))
+                {
+                    sb.Append($" src=\"{src}\"");
+                }
+
+                sb.Append(" />");
+
+                // Render content for CheckBox or RadioButton
+                if ((element.Type == "CheckBox" || element.Type == "RadioButton") &&
+                    element.Properties.TryGetValue("Content", out var content))
+                {
+                    sb.Append($" {content}");
+                }
+
+                sb.AppendLine();
+                return;
+            }
 
             sb.Append(">");
 
+            // Inner text or content mapping
             if (!string.IsNullOrWhiteSpace(element.InnerText))
-                sb.Append(element.InnerText);
-
-            if (element.Children.Count > 0)
-                sb.AppendLine();
-
-            foreach (var child in element.Children)
             {
-                // THIS MUST USE element.Type
-                RenderElement(child, sb, indent + 2, element.Type);
+                sb.Append(element.InnerText);
             }
-
+            else if ((element.Type == "ContentControl" || element.Type == "Button") &&
+                     element.Properties.TryGetValue("Content", out var content))
+            {
+                sb.Append(content);
+            }
+            // Render children recursively
             if (element.Children.Count > 0)
+            {
+                sb.AppendLine();
+                foreach (var child in element.Children)
+                {
+                    string? orientation = null;
+
+                    if (element.Type == "StackPanel" &&
+                        element.Properties.TryGetValue("Orientation", out var o))
+                    {
+                        orientation = o;
+                    }
+
+                    RenderElement(child, sb, indent + 2, element.Type, orientation);
+                }
+
                 sb.Append(indentation);
+            }
 
             sb.AppendLine($"</{tag}>");
         }
@@ -178,11 +264,12 @@ namespace XamlToHtmlConverter.Rendering
         /// Builds inline CSS styles based on element type,
         /// layout behavior, standard properties, and attached properties.
         /// </summary>
-        private string BuildStyle(IrElement element, string? parentLayoutType)
+        private string BuildStyle(IrElement element, string? parentLayoutType, string? parentOrientation)
         {
             var sb = new StringBuilder();
 
             // 1️⃣ Apply layout container behavior (Grid, StackPanel, etc.)
+            // Layout renderers (Grid, StackPanel, DockPanel, etc.)
             foreach (var layout in _layoutRenderers)
             {
                 if (layout.CanHandle(element))
@@ -193,7 +280,7 @@ namespace XamlToHtmlConverter.Rendering
             }
 
             // 2️⃣ Apply property-based styling (width, margin, alignment, grid positioning, etc.)
-            var context = new LayoutContext(parentLayoutType);
+            var context = new LayoutContext(parentLayoutType, parentOrientation);
             sb.Append(_styleBuilder.Build(element, context));
 
             return sb.ToString();

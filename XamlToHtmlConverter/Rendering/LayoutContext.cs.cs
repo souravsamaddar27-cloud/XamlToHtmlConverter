@@ -18,9 +18,11 @@ namespace XamlToHtmlConverter.Rendering
         /// <summary>
         /// Initializes the layout context with the parent layout type.
         /// </summary>
-        public LayoutContext(string? parentLayoutType)
+        public string? ParentOrientation { get; }
+        public LayoutContext(string? parentLayoutType, string? parentOrientation = null)
         {
             ParentLayoutType = parentLayoutType;
+            ParentOrientation = parentOrientation;
         }
     }
 }

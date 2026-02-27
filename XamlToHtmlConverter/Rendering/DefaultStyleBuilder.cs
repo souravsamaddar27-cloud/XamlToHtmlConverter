@@ -25,18 +25,62 @@ namespace XamlToHtmlConverter.Rendering
             ApplyAlignment(element, context, sb);
             return sb.ToString();
         }
+
+
         /// <summary>
         /// Applies width, height, background, margin, and padding styles
         /// based on regular element properties.
         /// </summary>
         private void ApplyStandardProperties(IrElement element, StringBuilder sb)
         {
+            if (element.Properties.TryGetValue("Visibility", out var visibility))
+            {
+                switch (visibility)
+                {
+                    case "Collapsed":
+                        sb.Append("display:none;");
+                        return; // Nothing else matters if collapsed
+                    case "Hidden":
+                        sb.Append("visibility:hidden;");
+                        break;
+                    case "Visible":
+                        // Do nothing
+                        break;
+                }
+            }
             if (element.Properties.TryGetValue("Width", out var width) && int.TryParse(width, out var w))
                 sb.Append($"width:{w}px;");
 
             if (element.Properties.TryGetValue("Height", out var height) && int.TryParse(height, out var h))
                 sb.Append($"height:{h}px;");
 
+            // MinWidth
+            if (element.Properties.TryGetValue("MinWidth", out var minWidth)
+                && int.TryParse(minWidth, out var minW))
+            {
+                sb.Append($"min-width:{minW}px;");
+            }
+
+            // MaxWidth
+            if (element.Properties.TryGetValue("MaxWidth", out var maxWidth)
+                && int.TryParse(maxWidth, out var maxW))
+            {
+                sb.Append($"max-width:{maxW}px;");
+            }
+
+            // MinHeight
+            if (element.Properties.TryGetValue("MinHeight", out var minHeight)
+                && int.TryParse(minHeight, out var minH))
+            {
+                sb.Append($"min-height:{minH}px;");
+            }
+
+            // MaxHeight
+            if (element.Properties.TryGetValue("MaxHeight", out var maxHeight)
+                && int.TryParse(maxHeight, out var maxH))
+            {
+                sb.Append($"max-height:{maxH}px;");
+            }
             if (element.Properties.TryGetValue("Background", out var bg))
                 sb.Append($"background-color:{bg};");
 
@@ -79,6 +123,12 @@ namespace XamlToHtmlConverter.Rendering
             {
                 sb.Append($"grid-column:{cc + 1};");
             }
+            // Panel.ZIndex
+            if (element.AttachedProperties.TryGetValue("Panel.ZIndex", out var zIndex)
+                && int.TryParse(zIndex, out var z))
+            {
+                sb.Append($"z-index:{z};");
+            }
         }
 
         /// <summary>
@@ -87,32 +137,59 @@ namespace XamlToHtmlConverter.Rendering
         /// </summary>
         private void ApplyAlignment(IrElement element, LayoutContext context, StringBuilder sb)
         {
-            Console.WriteLine($"Alignment check: ParentLayoutType={context.ParentLayoutType}");
             if (string.Equals(context.ParentLayoutType, "Grid", StringComparison.OrdinalIgnoreCase))
             {
+                // Horizontal
                 if (element.Properties.TryGetValue("HorizontalAlignment", out var hAlign))
                 {
-                    sb.Append($"justify-self:{ConvertAlignment(hAlign)};");
+                    var css = ConvertAlignment(hAlign);
+                    if (css != null)
+                        sb.Append($"justify-self:{css};");
                 }
 
+                // Vertical
                 if (element.Properties.TryGetValue("VerticalAlignment", out var vAlign))
                 {
-                    sb.Append($"align-self:{ConvertAlignment(vAlign)};");
+                    var css = ConvertAlignment(vAlign);
+                    if (css != null)
+                        sb.Append($"align-self:{css};");
                 }
+
+                return;
             }
-            else if (string.Equals(context.ParentLayoutType, "StackPanel", StringComparison.OrdinalIgnoreCase))
+
+            if (string.Equals(context.ParentLayoutType, "StackPanel", StringComparison.OrdinalIgnoreCase))
             {
-                // In vertical stack (default), horizontal alignment affects cross-axis
-                if(element.Properties.TryGetValue("HorizontalAlignment",out var hAlign))
+                var orientation = context.ParentOrientation ?? "Vertical";
+
+                if (string.Equals(orientation, "Vertical", StringComparison.OrdinalIgnoreCase))
                 {
-                    sb.Append($"align-self:{ConvertAlignment(hAlign)};");
+                    // Cross axis = horizontal
+                    if (element.Properties.TryGetValue("HorizontalAlignment", out var hAlign))
+                    {
+                        var css = ConvertAlignment(hAlign);
+                        if (css != null)
+                            sb.Append($"align-self:{css};");
+                    }
                 }
+                else // Horizontal StackPanel
+                {
+                    // Cross axis = vertical
+                    if (element.Properties.TryGetValue("VerticalAlignment", out var vAlign))
+                    {
+                        var css = ConvertAlignment(vAlign);
+                        if (css != null)
+                            sb.Append($"align-self:{css};");
+                    }
+                }
+
+                return;
             }
         }
         /// <summary>
         /// Converts alignment values from XAML format to CSS equivalents.
         /// </summary>
-        private string ConvertAlignment(string value)
+        private string? ConvertAlignment(string value)
         {
             return value switch
             {
@@ -121,8 +198,8 @@ namespace XamlToHtmlConverter.Rendering
                 "Top" => "start",
                 "Bottom" => "end",
                 "Center" => "center",
-                "Stretch" => "stretch",
-                _ => "start"
+                "Stretch" => null, // Do not emit
+                _ => null
             };
         }
         /// <summary>
@@ -197,3 +274,4 @@ namespace XamlToHtmlConverter.Rendering
         }
     }
 }
+  
