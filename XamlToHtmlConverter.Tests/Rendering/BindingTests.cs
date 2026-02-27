@@ -5,8 +5,17 @@ using System.Collections.Generic;
 
 namespace XamlToHtmlConverter.Tests.Rendering
 {
+    /// <summary>
+    /// Contains unit tests validating XAML binding handling.
+    /// Ensures binding expressions are correctly extracted
+    /// and preserved as HTML metadata attributes.
+    /// </summary>
     public class BindingTests
     {
+        /// <summary>
+        /// Creates a configured HtmlRenderer instance
+        /// with layout renderers and default style builder.
+        /// </summary>
         private HtmlRenderer CreateRenderer()
         {
             return new HtmlRenderer(
@@ -19,6 +28,10 @@ namespace XamlToHtmlConverter.Tests.Rendering
                 new DefaultStyleBuilder());
         }
 
+        /// <summary>
+        /// Verifies that a simple binding expression
+        /// is converted into a corresponding data-binding attribute.
+        /// </summary>
         [Fact]
         public void Button_WithSimpleBinding_PreservesBindingMetadata()
         {
@@ -30,6 +43,10 @@ namespace XamlToHtmlConverter.Tests.Rendering
 
             Assert.Contains("data-binding-content=\"SubmitText\"", html);
         }
+        /// <summary>
+        /// Verifies that binding expressions using Path syntax
+        /// correctly extract and preserve the binding path.
+        /// </summary>
         [Fact]
         public void Binding_WithPathSyntax_ExtractsPath()
         {
@@ -42,6 +59,10 @@ namespace XamlToHtmlConverter.Tests.Rendering
             Assert.Contains("data-binding-content=\"UserName\"", html);
         }
 
+        /// <summary>
+        /// Verifies that additional binding options
+        /// do not interfere with correct path extraction.
+        /// </summary>
         [Fact]
         public void Binding_WithModeOption_StillExtractsPath()
         {
@@ -53,6 +74,10 @@ namespace XamlToHtmlConverter.Tests.Rendering
 
             Assert.Contains("data-binding-content=\"UserName\"", html);
         }
+        /// <summary>
+        /// Verifies that multiple binding properties are preserved
+        /// and that normal non-binding properties remain unaffected.
+        /// </summary>
         [Fact]
         public void Element_WithMultipleBindings_PreservesEach_And_LeavesNormalPropertiesUntouched()
         {
