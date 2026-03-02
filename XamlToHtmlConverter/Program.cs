@@ -35,6 +35,7 @@ class Program
         //IXmlToIrConverter converter = new XmlToIrConverterLinqStyle();
         var ir = converter.Convert(document.Root);
 
+
         // Save IR representation
         var irDoc = IrXmlExporter.Export(ir);
         var irOutputPath = Path.Combine(AppContext.BaseDirectory, "Ir.xml");
@@ -45,9 +46,11 @@ class Program
             new ILayoutRenderer[]
             {
                 new GridLayoutRenderer(),
-                new StackPanelLayoutRenderer()
+                new StackPanelLayoutRenderer(),
+                new DockPanelLayoutRenderer()
             },
-            new DefaultStyleBuilder());
+            new DefaultStyleBuilder(),
+            new DefaultEventExtractor());
         var html = renderer.RenderDocument(ir);
         var htmlOutputPath = Path.Combine(AppContext.BaseDirectory, "output.html");
         File.WriteAllText(htmlOutputPath, html);
@@ -64,19 +67,25 @@ class Program
     static void PrintIr(IrElement element, int indent)
     {
         var space = new string(' ', indent);
-        Console.WriteLine($"{space} {element.Type}");
+        Console.WriteLine($"{space}{element.Type}");
 
         foreach (var prop in element.Properties)
-            Console.WriteLine($"{space} prop: {prop.Key}={prop.Value}");
+            Console.WriteLine($"{space}  prop: {prop.Key}={prop.Value}");
 
         foreach (var attached in element.AttachedProperties)
-            Console.WriteLine($"{space} Attached: {attached.Key}={attached.Value}");
+            Console.WriteLine($"{space}  Attached: {attached.Key}={attached.Value}");
 
         if (!string.IsNullOrWhiteSpace(element.InnerText))
-            Console.WriteLine($"{space} Text: {element.InnerText}");
+            Console.WriteLine($"{space}  Text: {element.InnerText}");
+
+        // ✅ Print Template separately (NEW)
+        if (element.Template != null)
+        {
+            Console.WriteLine($"{space}  [Template]");
+            PrintIr(element.Template, indent + 4);
+        }
 
         foreach (var child in element.Children)
             PrintIr(child, indent + 2);
-
     }
 }

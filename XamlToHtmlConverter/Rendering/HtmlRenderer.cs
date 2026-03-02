@@ -49,14 +49,17 @@ namespace XamlToHtmlConverter.Rendering
         /// </summary>
         private readonly IStyleBuilder _styleBuilder;
 
+        private readonly IEventExtractor _eventExtractor;
+
         /// <summary>
         /// Initializes renderer with required mapping, layout, and styling services.
         /// </summary>
-        public HtmlRenderer(IElementTagMapper tagMapper, IEnumerable<ILayoutRenderer> layoutRenderers, IStyleBuilder styleBuilder)
+        public HtmlRenderer(IElementTagMapper tagMapper, IEnumerable<ILayoutRenderer> layoutRenderers, IStyleBuilder styleBuilder, IEventExtractor eventExtractor)
         {
             _tagMapper = tagMapper; 
             _layoutRenderers = layoutRenderers;
              _styleBuilder= styleBuilder;
+            _eventExtractor = eventExtractor;
         }
 
         private readonly StyleRegistry _styleRegistry = new();
@@ -82,6 +85,12 @@ namespace XamlToHtmlConverter.Rendering
             foreach (var attr in bindingAttributes)
             {
                 sb.Append($" {attr.Key}=\"{attr.Value}\"");
+            }
+
+            var eventAttributes = _eventExtractor.Extract(element);
+            foreach (var evt in eventAttributes)
+            {
+                sb.Append($" {evt.Key}=\"{evt.Value}\"");
             }
             // ---- TextBox special handling ----
             if (element.Type == "TextBox")
@@ -180,7 +189,38 @@ namespace XamlToHtmlConverter.Rendering
                         orientation = o;
                     }
 
-                    RenderElement(child, sb, indent + 2, element.Type, orientation);
+                    // 🔹 Flatten ItemsControl.Items
+                    if (child.Type == "ItemsControl.Items")
+                    {
+                        foreach (var item in child.Children)
+                        {
+                            RenderElement(item, sb, indent + 2, element.Type, orientation);
+                        }
+                    }
+
+                    // 🔹 Handle ItemTemplate
+                    else if (child.Type == "ItemsControl.ItemTemplate")
+                    {
+                        foreach (var templateNode in child.Children)
+                        {
+                            if (templateNode.Type == "DataTemplate")
+                            {
+                                sb.AppendLine($"{new string(' ', indent + 2)}<template>");
+
+                                foreach (var templateChild in templateNode.Children)
+                                {
+                                    RenderElement(templateChild, sb, indent + 4, element.Type, orientation);
+                                }
+
+                                sb.AppendLine($"{new string(' ', indent + 2)}</template>");
+                            }
+                        }
+                    }
+
+                    else
+                    {
+                        RenderElement(child, sb, indent + 2, element.Type, orientation);
+                    }
                 }
 
                 sb.Append(indentation);

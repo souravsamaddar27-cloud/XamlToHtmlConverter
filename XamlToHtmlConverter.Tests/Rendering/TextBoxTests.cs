@@ -28,7 +28,7 @@ namespace XamlToHtmlConverter.Tests.Rendering
             new StackPanelLayoutRenderer(),
             new DockPanelLayoutRenderer()
                 },
-                new DefaultStyleBuilder());
+                new DefaultStyleBuilder(), new DefaultEventExtractor());
         }
         /// <summary>
         /// Verifies that a TextBox renders as an input element

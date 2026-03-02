@@ -26,7 +26,7 @@ namespace XamlToHtmlConverter.Tests.Rendering
             new StackPanelLayoutRenderer(),
             new DockPanelLayoutRenderer()
                 },
-                new DefaultStyleBuilder());
+                new DefaultStyleBuilder(), new DefaultEventExtractor());
         }
         /// <summary>
         /// Verifies that a DockPanel renders as a flex container.

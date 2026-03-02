@@ -25,7 +25,7 @@ namespace XamlToHtmlConverter.Tests.Rendering
                     new GridLayoutRenderer(),
                     new StackPanelLayoutRenderer()
                 },
-                new DefaultStyleBuilder());
+                new DefaultStyleBuilder(), new DefaultEventExtractor());
         }
         /// <summary>
         /// Verifies that MinWidth property maps to min-width CSS.

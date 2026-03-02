@@ -81,6 +81,39 @@ namespace XamlToHtmlConverter.Parsing
 			ir.Children= visualChildren;
 			return ir;
 		}
-	}
+        /// <summary>
+        /// Parses a Resources node and extracts Style definitions,
+        /// attaching them to the owning IR element.
+        /// </summary>
+        private void ParseResources(XElement resourcesNode, IrElement owner)
+        {
+            /// <summary>
+            /// Iterates through all Style elements defined inside resources.
+            /// </summary>
+            foreach (var styleNode in resourcesNode.Elements("Style"))
+            {
+                var style = new IrStyle
+                {
+                    Key = styleNode.Attribute("x:Key")?.Value,
+                    TargetType = styleNode.Attribute("TargetType")?.Value
+                };
+                /// <summary>
+                /// Extracts Setter elements and maps property-value pairs
+                /// into the style definition.
+                /// </summary>
+                foreach (var setter in styleNode.Elements("Setter"))
+                {
+                    var property = setter.Attribute("Property")?.Value;
+                    var value = setter.Attribute("Value")?.Value;
+
+                    if (!string.IsNullOrWhiteSpace(property))
+                        style.Setters[property] = value ?? "";
+                }
+
+                if (!string.IsNullOrWhiteSpace(style.Key))
+                    owner.Resources[style.Key] = style;
+            }
+        }
+    }
 
 }

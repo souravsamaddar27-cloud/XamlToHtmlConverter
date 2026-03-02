@@ -26,7 +26,7 @@ namespace XamlToHtmlConverter.Tests.Rendering
                     new GridLayoutRenderer(),
                     new StackPanelLayoutRenderer()
                 },
-                new DefaultStyleBuilder());
+                new DefaultStyleBuilder(), new DefaultEventExtractor());
         }
 
         /// <summary>
