@@ -25,7 +25,8 @@ namespace XamlToHtmlConverter.Rendering
                 {"ComboBoxItem","option"},
                 {"ListBoxItem","option"},
                 {"ContentControl","div"},
-                {"TextBox","input"}
+                {"TextBox","input"},
+                {"WrapPanel","div"}
             };
         public string Map(string xamlType)
         {

@@ -34,7 +34,7 @@ class Program
         //Console.WriteLine("LINQ converter running...");
         //IXmlToIrConverter converter = new XmlToIrConverterLinqStyle();
         var ir = converter.Convert(document.Root);
-
+        PrintIr(ir, 0);
 
         // Save IR representation
         var irDoc = IrXmlExporter.Export(ir);
@@ -47,7 +47,8 @@ class Program
             {
                 new GridLayoutRenderer(),
                 new StackPanelLayoutRenderer(),
-                new DockPanelLayoutRenderer()
+                new DockPanelLayoutRenderer(),
+                new WrapPanelLayoutRenderer()
             },
             new DefaultStyleBuilder(),
             new DefaultEventExtractor());
@@ -67,8 +68,6 @@ class Program
     static void PrintIr(IrElement element, int indent)
     {
         var space = new string(' ', indent);
-        Console.WriteLine($"{space}{element.Type}");
-
         foreach (var prop in element.Properties)
             Console.WriteLine($"{space}  prop: {prop.Key}={prop.Value}");
 

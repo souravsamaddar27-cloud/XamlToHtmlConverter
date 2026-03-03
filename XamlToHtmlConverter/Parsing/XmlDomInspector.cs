@@ -17,14 +17,14 @@ namespace XamlToHtmlConverter.Parsing
         {
             var indentation = new string(' ', indent);
 
-            Console.WriteLine($"{indentation}Element: {element.Name.LocalName}");
+   
 
             foreach (var attr in element.Attributes())
             {
                 if (attr.IsNamespaceDeclaration)
                     continue;
 
-                Console.WriteLine($"{indentation}  Attribute: {attr.Name.LocalName} = {attr.Value}");
+              
             }
 
             foreach (var node in element.Nodes())
@@ -38,7 +38,7 @@ namespace XamlToHtmlConverter.Parsing
                     var text = textNode.Value.Trim();
                     if (!string.IsNullOrEmpty(text))
                     {
-                        Console.WriteLine($"{indentation}  TextNode: {text}");
+                       
                     }
                 }
             }

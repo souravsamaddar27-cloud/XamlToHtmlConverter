@@ -1,7 +1,276 @@
-<Button>
-	<Button.Template>
-		<ControlTemplate>
-			<Grid/>
-		</ControlTemplate>
-	</Button.Template>
-</Button>
+<Window
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="Enterprise Layout Test"
+    Width="1200"
+    Height="800">
+
+	<Grid>
+
+		<!-- ================= RESOURCES ================= -->
+
+		<Grid.Resources>
+
+			<!-- Explicit Button Style -->
+			<Style x:Key="PrimaryButton" TargetType="Button">
+				<Setter Property="Width" Value="140"/>
+				<Setter Property="Height" Value="38"/>
+				<Setter Property="Background" Value="LightSteelBlue"/>
+				<Setter Property="Margin" Value="6"/>
+			</Style>
+
+			<!-- Implicit TextBlock Style -->
+			<Style TargetType="TextBlock">
+				<Setter Property="Margin" Value="4"/>
+			</Style>
+
+			<!-- Implicit TextBox Style -->
+			<Style TargetType="TextBox">
+				<Setter Property="Margin" Value="4"/>
+				<Setter Property="MinWidth" Value="180"/>
+			</Style>
+
+		</Grid.Resources>
+
+		<!-- ================= ROOT GRID ================= -->
+
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="*"/>
+			<RowDefinition Height="Auto"/>
+		</Grid.RowDefinitions>
+
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="2*"/>
+			<ColumnDefinition Width="3*"/>
+			<ColumnDefinition Width="1*"/>
+		</Grid.ColumnDefinitions>
+
+		<!-- ================= HEADER ================= -->
+
+		<Border Grid.Row="0"
+                Grid.ColumnSpan="3"
+                Background="LightGray"
+                Padding="12">
+
+			<StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Center">
+
+				<TextBlock Text="Enterprise Dashboard"/>
+				<Button Content="Logout"
+                        Width="120"
+                        Height="30"
+                        Margin="10"
+                        Click="Logout_Click"/>
+
+			</StackPanel>
+		</Border>
+
+		<!-- ================= LEFT NAVIGATION ================= -->
+
+		<Border Grid.Row="1"
+                Grid.Column="0"
+                Background="#EFEFEF"
+                Padding="10">
+
+			<StackPanel>
+
+				<TextBlock Text="Navigation"/>
+
+				<Button Content="Home"
+                        Style="{StaticResource PrimaryButton}"/>
+
+				<Button Content="Users"
+                        Style="{StaticResource PrimaryButton}"/>
+
+				<Button Content="Reports"
+                        Style="{StaticResource PrimaryButton}"/>
+
+				<Button Content="Settings"
+                        Style="{StaticResource PrimaryButton}"/>
+
+			</StackPanel>
+		</Border>
+
+		<!-- ================= MAIN CONTENT ================= -->
+
+		<Grid Grid.Row="1"
+              Grid.Column="1"
+              Margin="10">
+
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto"/>
+				<RowDefinition Height="*"/>
+				<RowDefinition Height="Auto"/>
+			</Grid.RowDefinitions>
+
+			<!-- ====== USER INFO FORM ====== -->
+
+			<Border Grid.Row="0"
+                    Background="White"
+                    Padding="10">
+
+				<StackPanel>
+
+					<TextBlock Text="User Profile"/>
+
+					<TextBox Text="{Binding FirstName}"
+                             MinWidth="200"/>
+
+					<TextBox Text="{Binding LastName}"/>
+
+					<StackPanel Orientation="Horizontal">
+
+						<CheckBox Content="Active"
+                                  IsChecked="{Binding IsActive}"/>
+
+						<RadioButton Content="Admin"
+                                     IsChecked="{Binding IsAdmin}"
+                                     Margin="15,0,0,0"/>
+
+					</StackPanel>
+
+					<Button Content="Save Changes"
+                            Style="{StaticResource PrimaryButton}"
+                            Click="Save_Click"/>
+
+				</StackPanel>
+			</Border>
+
+			<!-- ====== DATA AREA ====== -->
+
+			<Grid Grid.Row="1"
+                  Margin="0,15,0,15">
+
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="2*"/>
+					<ColumnDefinition Width="1*"/>
+				</Grid.ColumnDefinitions>
+
+				<!-- LEFT DATA TABLE AREA -->
+				<Border Grid.Column="0"
+                        Background="White"
+                        Padding="8">
+
+					<WrapPanel>
+
+						<Button Content="Add"
+                                Style="{StaticResource PrimaryButton}"/>
+
+						<Button Content="Edit"
+                                Style="{StaticResource PrimaryButton}"/>
+
+						<Button Content="Delete"
+                                Style="{StaticResource PrimaryButton}"/>
+
+						<Button Content="Export"
+                                Style="{StaticResource PrimaryButton}"/>
+
+					</WrapPanel>
+				</Border>
+
+				<!-- RIGHT FILTER PANEL -->
+				<Border Grid.Column="1"
+                        Background="White"
+                        Padding="8"
+                        Margin="10,0,0,0">
+
+					<DockPanel>
+
+						<TextBlock DockPanel.Dock="Top"
+                                   Text="Filters"/>
+
+						<StackPanel>
+
+							<ComboBox Width="160">
+								<ComboBoxItem Content="All"/>
+								<ComboBoxItem Content="Active"/>
+								<ComboBoxItem Content="Inactive"/>
+							</ComboBox>
+
+							<ListBox Height="120"
+                                     Margin="0,10,0,0">
+								<ListBoxItem Content="Option A"/>
+								<ListBoxItem Content="Option B"/>
+								<ListBoxItem Content="Option C"/>
+							</ListBox>
+
+							<Button Content="Apply"
+                                    Style="{StaticResource PrimaryButton}"
+                                    Margin="0,10,0,0"/>
+
+						</StackPanel>
+
+					</DockPanel>
+
+				</Border>
+
+			</Grid>
+
+			<!-- ====== STATUS BAR ====== -->
+
+			<Border Grid.Row="2"
+                    Background="LightGray"
+                    Padding="6">
+
+				<StackPanel Orientation="Horizontal"
+                            HorizontalAlignment="Right">
+
+					<TextBlock Text="Status:"/>
+					<TextBlock Text="{Binding StatusMessage}"
+                               Margin="8,0,0,0"/>
+
+				</StackPanel>
+
+			</Border>
+
+		</Grid>
+
+		<!-- ================= RIGHT SIDEBAR ================= -->
+
+		<Border Grid.Row="1"
+                Grid.Column="2"
+                Background="#F5F5F5"
+                Padding="10">
+
+			<StackPanel>
+
+				<TextBlock Text="Statistics"/>
+
+				<Image Width="120"
+                       Height="80"
+                       Margin="5"
+                       Source="chart.png"/>
+
+				<TextBlock Text="Online Users: 128"/>
+				<TextBlock Text="Active Sessions: 42"/>
+
+			</StackPanel>
+		</Border>
+
+		<!-- ================= FOOTER ================= -->
+
+		<Border Grid.Row="2"
+                Grid.ColumnSpan="3"
+                Background="LightGray"
+                Padding="8">
+
+			<StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Center">
+
+				<Button Content="Help"
+                        Width="110"
+                        Height="30"
+                        Margin="5"/>
+
+				<Button Content="About"
+                        Width="110"
+                        Height="30"
+                        Margin="5"/>
+
+			</StackPanel>
+
+		</Border>
+
+	</Grid>
+</Window>

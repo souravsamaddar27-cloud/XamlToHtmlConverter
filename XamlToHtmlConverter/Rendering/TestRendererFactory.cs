@@ -20,7 +20,8 @@ namespace XamlToHtmlConverter.Rendering
         {
             new GridLayoutRenderer(),
             new StackPanelLayoutRenderer(),
-            new DockPanelLayoutRenderer()
+            new DockPanelLayoutRenderer(),
+            new WrapPanelLayoutRenderer()
         };
 
             return new HtmlRenderer(
