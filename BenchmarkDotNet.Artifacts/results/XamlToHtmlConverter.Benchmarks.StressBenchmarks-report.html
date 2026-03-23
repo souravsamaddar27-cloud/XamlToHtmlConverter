@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>XamlToHtmlConverter.Benchmarks.StressBenchmarks-20260323-112257</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet=v0.13.2, OS=Windows 11 (10.0.26200.7840)
+Unknown processor
+.NET SDK=10.0.201
+  [Host]     : .NET 8.0.25 (8.0.2526.11203), X64 RyuJIT AVX2
+  Job-ZGAKQL : .NET 8.0.25 (8.0.2526.11203), X64 RyuJIT AVX2
+</code></pre>
+<pre><code>IterationCount=3  WarmupCount=2  
+</code></pre>
+
+<table>
+<thead><tr><th>                        Method</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Gen0</th><th>Gen1</th><th>Allocated</th>
+</tr>
+</thead><tbody><tr><td>&#39;High Element Count (500+ elements)&#39;</td><td>320.33 &mu;s</td><td>369.936 &mu;s</td><td>20.277 &mu;s</td><td>82.5195</td><td>38.0859</td><td>1015.08 KB</td>
+</tr><tr><td>&#39;High Style Diversity (100+ unique)&#39;</td><td>94.21 &mu;s</td><td>3.175 &mu;s</td><td>0.174 &mu;s</td><td>23.6816</td><td>4.1504</td><td>290.38 KB</td>
+</tr><tr><td>&#39;Repeated Binding Parse (1000x)&#39;</td><td>165.30 &mu;s</td><td>59.723 &mu;s</td><td>3.274 &mu;s</td><td>25.3906</td><td>-</td><td>312.5 KB</td>
+</tr></tbody></table>
+</body>
+</html>

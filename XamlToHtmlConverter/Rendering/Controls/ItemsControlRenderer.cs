@@ -23,12 +23,12 @@ namespace XamlToHtmlConverter.Rendering.Controls
         {
             if (element.Type == "ListBox")
             {
-                attributes.Add("multiple", null);
+                attributes.Add("multiple", string.Empty);
             }
 
             if (element.Bindings.TryGetValue("ItemsSource", out var binding))
             {
-                attributes.Add("data-binding-itemssource", binding.Path);
+                attributes.Add("data-binding-itemssource", binding.Path ?? string.Empty);
             }
         }
 
