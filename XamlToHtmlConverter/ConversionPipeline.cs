@@ -13,28 +13,30 @@ namespace XamlToHtmlConverter;
 /// 
 /// Responsibilities:
 ///   - XAML document loading
-///   - XML DOM persistence
 ///   - Intermediate Representation (IR) construction
-///   - IR XML export
 ///   - HTML rendering
-///   - HTML file output
 /// 
+/// All file I/O operations are delegated to IOutputWriter to maintain
+/// separation of concerns (orchestration vs. I/O).
 /// Performance metrics are collected during execution for observability.
 /// </summary>
 public class ConversionPipeline
 {
     private readonly IXmlToIrConverter v_Converter;
     private readonly HtmlRenderer v_Renderer;
+    private readonly IOutputWriter v_OutputWriter;
 
     /// <summary>
-    /// Initializes a new ConversionPipeline with the specified converter and renderer.
+    /// Initializes a new ConversionPipeline with the specified converter, renderer, and output writer.
     /// </summary>
-    /// <param name="converter">The converter strategyfor transforming XML to IR.</param>
+    /// <param name="converter">The converter strategy for transforming XML to IR.</param>
     /// <param name="renderer">The renderer for transforming IR to HTML.</param>
-    public ConversionPipeline(IXmlToIrConverter converter, HtmlRenderer renderer)
+    /// <param name="outputWriter">The output writer for persisting files (default: OutputWriter).</param>
+    public ConversionPipeline(IXmlToIrConverter converter, HtmlRenderer renderer, IOutputWriter? outputWriter = null)
     {
         v_Converter = converter;
         v_Renderer = renderer;
+        v_OutputWriter = outputWriter ?? new OutputWriter();
     }
 
     /// <summary>
@@ -59,10 +61,6 @@ public class ConversionPipeline
         if (document.Root == null)
             throw new InvalidOperationException("XML document has no root element.");
 
-        // Save original XML DOM
-        var xmlOutputPath = Path.Combine(outputDirectory, "XamlDom.xml");
-        document.Save(xmlOutputPath);
-
         // Phase 2: Convert to IR
         var conversionWatch = Stopwatch.StartNew();
         var ir = v_Converter.Convert(document.Root);
@@ -71,18 +69,25 @@ public class ConversionPipeline
         // Count elements for metrics
         var elementCount = CountElements(ir);
 
-        // Save IR representation
-        var irDoc = IntermediateRepresentationXmlExporter.Export(ir);
-        var irOutputPath = Path.Combine(outputDirectory, "Ir.xml");
-        irDoc.Save(irOutputPath);
-
         // Phase 3: Render HTML
         var renderingWatch = Stopwatch.StartNew();
         var html = v_Renderer.RenderDocument(ir);
         renderingWatch.Stop();
 
+        // Phase 4: Write outputs (delegated to IOutputWriter)
+        var writeWatch = Stopwatch.StartNew();
+        var xmlOutputPath = Path.Combine(outputDirectory, "XamlDom.xml");
+        v_OutputWriter.WriteXmlDocument(document, xmlOutputPath);
+
+        var irDoc = IntermediateRepresentationXmlExporter.Export(ir);
+        var irOutputPath = Path.Combine(outputDirectory, "Ir.xml");
+        v_OutputWriter.WriteXmlDocument(irDoc, irOutputPath);
+
         var htmlOutputPath = Path.Combine(outputDirectory, "output.html");
-        File.WriteAllText(htmlOutputPath, html);
+        v_OutputWriter.WriteHtmlContent(html, htmlOutputPath);
+        writeWatch.Stop();
+
+        totalWatch.Stop();
 
         totalWatch.Stop();
 
