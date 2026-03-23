@@ -21,6 +21,8 @@ namespace XamlToHtmlConverter.Rendering
     public class DefaultStyleBuilder : IStyleBuilder
     {
         private readonly PropertyMapperEngine v_PropertyEngine;
+        private readonly Dictionary<string, string> v_StyleRegistry = new();
+        private int v_StyleCounter = 0;
 
         /// <summary>
         /// Initializes with the specified property mappers.
@@ -33,6 +35,42 @@ namespace XamlToHtmlConverter.Rendering
         }
 
         #region Public Methods
+
+        /// <summary>
+        /// Registers a CSS style string and returns a reusable class name.
+        /// </summary>
+        /// <param name="cssStyle">The CSS style string to register.</param>
+        /// <returns>A class name that can be applied to HTML elements.</returns>
+        public string Register(string cssStyle)
+        {
+            if (string.IsNullOrWhiteSpace(cssStyle))
+                return string.Empty;
+
+            var className = $"style-{v_StyleCounter++}";
+            v_StyleRegistry[className] = cssStyle;
+            return className;
+        }
+
+        /// <summary>
+        /// Generates the complete &lt;style&gt; block for the HTML &lt;head&gt;.
+        /// </summary>
+        /// <returns>The consolidated CSS style block.</returns>
+        public string GenerateStyleBlock()
+        {
+            if (v_StyleRegistry.Count == 0)
+                return string.Empty;
+
+            var sb = new StringBuilder();
+            sb.AppendLine("<style>");
+
+            foreach (var kvp in v_StyleRegistry)
+            {
+                sb.AppendLine($"  .{kvp.Key} {{ {kvp.Value} }}");
+            }
+
+            sb.AppendLine("</style>");
+            return sb.ToString();
+        }
 
         /// <summary>
         /// Builds the complete inline CSS style string for the given IR element

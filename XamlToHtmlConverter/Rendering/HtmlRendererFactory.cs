@@ -48,6 +48,14 @@ namespace XamlToHtmlConverter.Rendering
             new CheckBoxRenderer(),
             new ListBoxRenderer(),
             new ItemsControlRenderer(),
+            new RadioButtonRenderer(),
+            new PasswordBoxRenderer(),
+            new SliderRenderer(),
+            new DatePickerRenderer(),
+            new RichTextBoxRenderer(),
+            new MediaElementRenderer(),
+            new GroupBoxRenderer(),
+            new ExpanderRenderer()
         };
 
         /// <summary>

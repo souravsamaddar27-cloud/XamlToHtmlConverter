@@ -21,21 +21,61 @@ public class DefaultElementTagMapper : IElementTagMapper
     /// </summary>
     private static readonly Dictionary<string, string> s_BuiltInMappings = new(StringComparer.OrdinalIgnoreCase)
     {
+        // Layout containers
         { "Grid", "div" },
         { "StackPanel", "div" },
-        { "Button", "button" },
-        { "TextBlock", "span" },
+        { "WrapPanel", "div" },
+        { "DockPanel", "div" },
+        { "Canvas", "div" },
         { "Border", "div" },
+        { "ContentControl", "div" },
+
+        // Navigation and grouping
+        { "Menu", "nav" },
+        { "MenuItem", "li" },
+        { "TreeView", "ul" },
+        { "TreeViewItem", "li" },
+
+        // Buttons and toggles
+        { "Button", "button" },
+        { "ToggleButton", "button" },
+        { "RepeatButton", "button" },
+
+        // Input controls
+        { "TextBox", "input" },
+        { "PasswordBox", "input" },
         { "CheckBox", "input" },
         { "RadioButton", "input" },
-        { "Image", "img" },
+        { "Slider", "input" },
+        { "DatePicker", "input" },
+
+        // Select-based controls
         { "ComboBox", "select" },
         { "ListBox", "select" },
         { "ComboBoxItem", "option" },
         { "ListBoxItem", "option" },
-        { "ContentControl", "div" },
-        { "TextBox", "input" },
-        { "WrapPanel", "div" }
+
+        // Text and display
+        { "TextBlock", "span" },
+        { "Label", "label" },
+        { "Hyperlink", "a" },
+
+        // Data and media
+        { "DataGrid", "table" },
+        { "ProgressBar", "progress" },
+        { "RichTextBox", "div" },
+        { "MediaElement", "video" },
+
+        // Containers with semantic meaning
+        { "GroupBox", "fieldset" },
+        { "Expander", "details" },
+        { "Separator", "hr" },
+
+        // Framing
+        { "Frame", "iframe" },
+
+        // Image
+        { "Image", "img" }
     };
 
     /// <summary>

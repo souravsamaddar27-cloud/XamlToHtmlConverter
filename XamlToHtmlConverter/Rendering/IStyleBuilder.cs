@@ -10,6 +10,11 @@ namespace XamlToHtmlConverter.Rendering
     /// </summary>
     public interface IStyleBuilder
     {
+        /// <summary>Registers a CSS style string; returns a reusable class name.
+        ///</summary>
+        string Register(string cssStyle);
+        /// <summary>Returns the full <style> block for the HTML <head>.</summary>
+        string GenerateStyleBlock();
         /// <summary>
         /// Generates a CSS style string for the specified IR element,
         /// taking into account its parent layout context for alignment and positioning.

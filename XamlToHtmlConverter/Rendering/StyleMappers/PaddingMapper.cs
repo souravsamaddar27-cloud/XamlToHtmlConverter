@@ -29,9 +29,10 @@ public class PaddingMapper : IPropertyMapper
         }
         else if (parts.Length == 2)
         {
-            if (int.TryParse(parts[0], out var vertical) &&
-                int.TryParse(parts[1], out var horizontal))
+            if (int.TryParse(parts[0], out var horizontal) &&
+                int.TryParse(parts[1], out var vertical))
             {
+                // CSS expects vertical first, then horizontal
                 sb.Append($"padding:{vertical}px {horizontal}px;");
             }
         }
